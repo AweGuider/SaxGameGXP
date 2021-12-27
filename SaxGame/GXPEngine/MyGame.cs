@@ -19,6 +19,9 @@ public class MyGame : Game
 		// Add the canvas to the engine to display it:
 		AddChild(canvas);
 		Console.WriteLine("MyGame initialized");
+
+		Sound background = new Sound("Game_Music.wav", true, true);
+		background.Play();
 	}
 
 	// For every game object, Update is called every frame, by the engine:
