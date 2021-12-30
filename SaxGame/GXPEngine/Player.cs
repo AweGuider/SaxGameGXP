@@ -5,36 +5,29 @@ using System.Text;
 
 namespace GXPEngine
 {
-    class Player
+    class Player : GameObject
     {
         BehaviourManager behaviourManager;
+        bool pressedX = false;
 
-        private Behaviour curBehave;
-        public Sprite sprite;
         public Player()
         {
             behaviourManager = new BehaviourManager();
-            curBehave = behaviourManager.GetCurrent();
-            sprite = curBehave.GetSprite();
+            AddChild(behaviourManager.GetCurrent().GetSprite());
         }
 
         public void Update()
         {
-            if (Input.GetKeyDown(Key.X))
+            if (Input.GetKeyDown(Key.X) && !pressedX)
             {
-                behaviourManager.SetNext(this);
+                pressedX = true;
+                RemoveChild(behaviourManager.GetCurrent().GetSprite());
+                AddChild(behaviourManager.GetNext().GetSprite());
             }
-        }
-
-        public Sprite GetSprite()
-        {
-            return this.sprite;
-        }
-
-        public void SetNextSprite(Behaviour behaviour)
-        {
-            curBehave = behaviour;
-            sprite = curBehave.GetSprite();
+            if (Input.GetKeyUp(Key.X))
+            {
+                pressedX = false;
+            }
         }
     }
 }

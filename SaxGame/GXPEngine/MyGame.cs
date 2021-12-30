@@ -4,11 +4,13 @@ using System.Drawing;							// System.Drawing contains drawing tools such as Col
 
 public class MyGame : Game
 {
-    Player player;
+     Player player;
 
-	public MyGame() : base(800, 600, false)		// Create a window that's 800x600 and NOT fullscreen
+
+    public MyGame() : base(800, 600, false)		// Create a window that's 800x600 and NOT fullscreen
 	{
         // Draw some things on a canvas:
+
         EasyDraw canvas = new EasyDraw(800, 600);
         canvas.Clear(Color.MediumPurple);
         /*canvas.Fill(Color.Yellow);
@@ -23,7 +25,7 @@ public class MyGame : Game
 
         player = new Player();
 
-        AddChild(player.GetSprite());
+        AddChild(player);
 
         Sound background = new Sound("Game_Music.wav", true, true);
         //background.Play();
@@ -35,7 +37,7 @@ public class MyGame : Game
 	void Update()
 	{
         player.Update();
-	}
+    }
 
 	static void Main()							// Main() is the first method that's called when the program is run
 	{

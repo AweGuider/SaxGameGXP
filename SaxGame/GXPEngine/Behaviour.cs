@@ -9,7 +9,7 @@ namespace GXPEngine
     class Behaviour
     {
         protected Sprite sprite;
-        protected String name;
+        protected string name;
         protected Behaviour(string name)
         {
             this.name = name;
@@ -28,35 +28,35 @@ namespace GXPEngine
     
     class Triangle : Behaviour
     {
-        public Triangle(string name)
+        public Triangle(string name) : base(name)
         {
             base.sprite = new Sprite("triangle.png");
-            base.name = name;
         }
     }
 
     class Circle : Behaviour
     {
-        public Circle(string name)
+        public Circle(string name) : base(name)
         {
             base.sprite = new Sprite("circle.png");
-            base.name = name;
         }
     }
 
     class Box : Behaviour
     {
-        public Box(string name)
+        public Box(string name) : base(name)
         {
             base.sprite = new Sprite("square.png");
-            base.name = name;
         }
     }
 
     class BehaviourManager
     {
         ArrayList behaviours;
-        int current;
+
+        Behaviour current;
+
+        int index;
         public BehaviourManager()
         {
             this.behaviours = new ArrayList
@@ -65,18 +65,22 @@ namespace GXPEngine
                 new Circle("circle"),
                 new Triangle("triangle")
             };
-            current = 0;
+            index = 0;
+            current = GetCurrent();
         }
 
         public Behaviour GetCurrent()
         {
-            return (Behaviour) behaviours[current];
+            return (Behaviour) behaviours[index];
         }
 
-        public void SetNext(Player player)
+
+        public Behaviour GetNext()
         {
-            if (current + 1 > behaviours.Count) current = -1;
-            player.SetNextSprite((Behaviour) behaviours[++current]);
+            index++;
+            if (index >= behaviours.Count) index = 0;
+            Console.WriteLine(behaviours[index].ToString());
+            return (Behaviour)behaviours[index];
         }
     }
 }
