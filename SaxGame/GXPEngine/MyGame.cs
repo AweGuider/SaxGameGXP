@@ -23,7 +23,7 @@ public class MyGame : Game
         // Add the canvas to the engine to display it:
         AddChild(canvas);
 
-        player = new Player();
+        player = new Player(width / 2 - 32, height / 2 - 32, 1, 1);
 
         AddChild(player);
 
