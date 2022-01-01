@@ -66,19 +66,6 @@ namespace GXPEngine
             }
         }
 
-        private void Print()
-        {
-            if (Input.GetKeyDown(Key.SPACE) && !pressedSpace)
-            {
-                pressedSpace = true;
-                Console.WriteLine("width = " + width + "; height = " + height);
-            }
-            if (Input.GetKeyUp(Key.SPACE))
-            {
-                pressedSpace = false;
-            }
-        }
-
         private void Move()
         {
             if (Input.GetKey(Key.A))
@@ -94,6 +81,25 @@ namespace GXPEngine
             if (Input.GetKey(Key.W))
             {
                 this.y -= speedY;
+            }
+            
+            else if (Input.GetKey(Key.S))
+            {
+                this.y += speedY;
+            }
+        }
+
+        private void Print()
+        {
+            if (Input.GetKeyDown(Key.SPACE) && !pressedSpace)
+            {
+                pressedSpace = true;
+                Console.WriteLine("width = " + width + "; height = " + height);
+                Console.WriteLine("x = " + this.x + "; y = " + this.y);
+            }
+            if (Input.GetKeyUp(Key.SPACE))
+            {
+                pressedSpace = false;
             }
         }
     }
