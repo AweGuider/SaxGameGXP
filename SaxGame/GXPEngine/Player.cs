@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TiledMapParser;
 
 namespace GXPEngine
 {
@@ -10,22 +11,29 @@ namespace GXPEngine
     {
         BehaviourManager behaviourManager;
 
-        bool pressedX = false;
-        bool pressedSpace = false;
+        private bool pressedX = false;
+        private bool pressedSpace = false;
 
-        float speedX;
-        float speedY;
+        private float speedX;
+        private float speedY;
 
-        int width;
-        int height;
+        private int width;
+        private int height;
 
-        public Player(float x, float y, int width, int height)
+        private float gravity;
+
+        public Player(float x, float y, int width, int height) : base(true)
         {
             this.x = x;
             this.y = y;
 
             this.speedX = 1;
             this.speedY = 1;
+
+            this.gravity = 0.25f;
+
+            SetScaleXY(0.25f);
+            SetXY(100, 100);
 
             behaviourManager = new BehaviourManager();
 
@@ -48,8 +56,9 @@ namespace GXPEngine
         public void Update()
         {
             ChangeForm();
+            MoveY();
+            MoveX();
             Print();
-            Move();
         }
 
         private void ChangeForm()
@@ -66,26 +75,47 @@ namespace GXPEngine
             }
         }
 
-        private void Move()
+        private void MoveX()
         {
             if (Input.GetKey(Key.A))
             {
-                this.x -= speedX;
+                speedX -= 1f;
             }
             
             else if (Input.GetKey(Key.D))
             {
-                this.x += speedX;
+                speedX += 1f;
+            }
+            x += speedX * gravity;
+            speedX *= 0.9f;
+        }
+
+        public void MoveY()
+        {
+            speedY += gravity / 2;
+            y += speedY;
+            /*if (MoveUntilCollision(0, speedY) != null)
+            {
+                speedY = 0;
+            }*/
+
+            if (y >= 600 - height * 4)
+            {
+                y = 600 - height * 4;
+                speedY = 0;
             }
 
-            if (Input.GetKey(Key.W))
+            if (Input.GetKeyDown(Key.W))
             {
-                this.y -= speedY;
+                speedY = -6;
             }
-            
-            else if (Input.GetKey(Key.S))
+        }
+
+        void OnCollision(GameObject gameObject)
+        {
+            if (gameObject is Level)
             {
-                this.y += speedY;
+                Console.WriteLine("HOOLYMOLLY");
             }
         }
 

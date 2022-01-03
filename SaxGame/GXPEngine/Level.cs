@@ -16,6 +16,7 @@ namespace GXPEngine
             Create();
             Map levelInfo = MapParser.ReadMap(filename);
             //CreateLevel(levelInfo);
+            SetScaleXY(0.5f);
         }
 
         private void CreateLevel(Map levelInfo)
@@ -42,7 +43,16 @@ namespace GXPEngine
             tiledLoader.autoInstance = true;
 
             tiledLoader.LoadTileLayers(0);
+
+            tiledLoader.addColliders = true;
+
             tiledLoader.LoadTileLayers(1);
+
+            tiledLoader.addColliders = true;
+
+            tiledLoader.LoadTileLayers(2);
+
+            tiledLoader.addColliders = true;
         }
     }
 

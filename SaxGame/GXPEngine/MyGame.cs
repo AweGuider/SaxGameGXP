@@ -29,12 +29,10 @@ public class MyGame : Game
         AddChild(canvas);
 
         player = new Player(width / 2 - 32, height / 2 - 32, 1, 1);
-
         AddChild(player);
 
         //Camera probably has to be fixed 
-        camera = new Camera(-player.GetWidth() / 2, -player.GetHeight() / 2, width, height);
-
+        camera = new Camera(player.GetWidth(), player.GetHeight(), width, height);
         player.AddChild(camera);
 
         Sound background = new Sound("Game_Music.wav", true, true);
@@ -59,7 +57,6 @@ public class MyGame : Game
         }
 
         AddChild(new Level(name));
-        scale = 0.5f;
     }
 
 	static void Main()							// Main() is the first method that's called when the program is run
