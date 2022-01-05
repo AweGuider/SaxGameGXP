@@ -7,9 +7,11 @@ using TiledMapParser;
 
 namespace GXPEngine
 {
-    class Player : GameObject
+    public class Player : GameObject
     {
         BehaviourManager behaviourManager;
+
+        Camera camera;
 
         private bool pressedX = false;
         private bool pressedSpace = false;
@@ -22,10 +24,13 @@ namespace GXPEngine
 
         private float gravity;
 
-        public Player(float x, float y, int width, int height) : base(true)
+        public Player(float x, float y, TiledObject obj = null) : base(true)
         {
-            this.x = x;
-            this.y = y;
+            /*this.x = obj.X;
+            this.y = obj.Y;*/
+
+            /*this.x = x;
+            this.y = y;*/
 
             this.speedX = 1;
             this.speedY = 1;
@@ -33,7 +38,6 @@ namespace GXPEngine
             this.gravity = 0.25f;
 
             SetScaleXY(0.25f);
-            SetXY(100, 100);
 
             behaviourManager = new BehaviourManager();
 
@@ -41,6 +45,9 @@ namespace GXPEngine
             this.height = behaviourManager.GetCurrent().GetSprite().height;
 
             AddChild(behaviourManager.GetCurrent().GetSprite());
+
+            camera = new Camera(this.GetWidth(), this.GetHeight(), width, height);
+            this.AddChild(camera);
         }
 
         public int GetWidth()
@@ -56,7 +63,7 @@ namespace GXPEngine
         public void Update()
         {
             ChangeForm();
-            MoveY();
+            //MoveY();
             MoveX();
             Print();
         }

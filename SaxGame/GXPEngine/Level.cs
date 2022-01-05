@@ -10,13 +10,33 @@ namespace GXPEngine
     {
         TiledLoader tiledLoader;
 
+        bool active;
+
+        Player player;
+
         public Level(string filename)
         {
             tiledLoader = new TiledLoader(filename);
             Create();
             Map levelInfo = MapParser.ReadMap(filename);
+
+            //CreateObjects(levelInfo);
             //CreateLevel(levelInfo);
-            SetScaleXY(0.5f);
+        }
+
+        public void Update()
+        {
+            if (player != null) player.Update();
+        }
+
+        public bool GetActive()
+        {
+            return active;
+        }
+
+        public void SetActive(bool b)
+        {
+            active = b;
         }
 
         private void CreateLevel(Map levelInfo)
@@ -42,17 +62,30 @@ namespace GXPEngine
         {
             tiledLoader.autoInstance = true;
 
-            tiledLoader.LoadTileLayers(0);
-
-            tiledLoader.addColliders = true;
-
             tiledLoader.LoadTileLayers(1);
 
-            tiledLoader.addColliders = true;
+            tiledLoader.LoadObjectGroups(0);
+        }
 
-            tiledLoader.LoadTileLayers(2);
+        private void CreateObjects(Map levelInfo)
+        {
+            if (levelInfo.ObjectGroups == null || levelInfo.ObjectGroups.Length == 0) return;
 
-            tiledLoader.addColliders = true;
+            ObjectGroup objects = levelInfo.ObjectGroups[0];
+
+            if (objects.Objects == null || objects.Objects.Length == 0) return;
+
+            foreach (TiledObject obj in objects.Objects)
+            {
+                switch (obj.Name)
+                {
+                    case "Player":
+                        player = new Player(obj.X, obj.Y);
+                        AddChild(player);
+                        Console.WriteLine("SUCCESS");
+                        break;
+                }
+            }
         }
     }
 

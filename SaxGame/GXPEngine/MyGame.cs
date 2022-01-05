@@ -9,6 +9,8 @@ public class MyGame : Game
 
     Camera camera;
 
+    List<Level> levels = new List<Level>();
+
 
     public MyGame() : base(800, 600, false)		// Create a window that's 800x600 and NOT fullscreen
 	{
@@ -23,17 +25,12 @@ public class MyGame : Game
         canvas.TextAlign(CenterMode.Center, CenterMode.Center);
         canvas.Text("Welcome!", width / 2, height / 2);*/
 
-        LoadLevel("MapLevel1.tmx");
-
-        // Add the canvas to the engine to display it:
         AddChild(canvas);
 
-        player = new Player(width / 2 - 32, height / 2 - 32, 1, 1);
-        AddChild(player);
+        LoadLevel("MapLevel1.tmx");
 
-        //Camera probably has to be fixed 
-        camera = new Camera(player.GetWidth(), player.GetHeight(), width, height);
-        player.AddChild(camera);
+        /*player = new Player(width / 2 - 32, height / 2 - 32);
+        AddChild(player);*/
 
         Sound background = new Sound("Game_Music.wav", true, true);
         //background.Play();
@@ -44,8 +41,7 @@ public class MyGame : Game
 	// For every game object, Update is called every frame, by the engine:
 	void Update()
 	{
-        player.Update();
-        
+        levels[0].Update();
     }
 
     private void LoadLevel(string name)
@@ -56,7 +52,11 @@ public class MyGame : Game
             children[i].Destroy();
         }
 
-        AddChild(new Level(name));
+        Level level = new Level(name);
+
+        if (levels != null && !levels.Contains(level)) levels.Add(level);
+
+        AddChild(level);
     }
 
 	static void Main()							// Main() is the first method that's called when the program is run
