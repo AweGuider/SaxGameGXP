@@ -6,13 +6,15 @@ using System.Text;
 
 namespace GXPEngine
 {
-    class Behaviour
+    public class Behaviour
     {
         protected Sprite sprite;
         protected string name;
-        protected Behaviour(string name)
+        public Behaviour(string name, string imagePath)
         {
             this.name = name;
+            sprite = new Sprite(imagePath, false, false);
+            sprite.SetOrigin(sprite.width / 2, sprite.height / 2);
         }
 
         public Sprite GetSprite()
@@ -28,25 +30,25 @@ namespace GXPEngine
     
     class Triangle : Behaviour
     {
-        public Triangle(string name) : base(name)
+        public Triangle(string name) : base(name, "triangle.png")
         {
-            base.sprite = new Sprite("triangle.png");
+
         }
     }
 
     class Circle : Behaviour
     {
-        public Circle(string name) : base(name)
+        public Circle(string name) : base(name, "circle.png")
         {
-            base.sprite = new Sprite("circle.png");
+
         }
     }
 
     class Box : Behaviour
     {
-        public Box(string name) : base(name)
+        public Box(string name) : base(name, "square.png")
         {
-            base.sprite = new Sprite("square.png");
+
         }
     }
 
@@ -71,7 +73,8 @@ namespace GXPEngine
 
         public Behaviour GetCurrent()
         {
-            return (Behaviour) behaviours[index];
+            current = (Behaviour)behaviours[index];
+            return current;
         }
 
 

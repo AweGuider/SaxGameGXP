@@ -7,11 +7,11 @@ using TiledMapParser;
 
 namespace GXPEngine
 {
-    public class Player : GameObject
+    public class Player : Sprite
     {
         BehaviourManager behaviourManager;
 
-        Camera camera;
+       // Camera camera;
 
         private bool pressedX = false;
         private bool pressedSpace = false;
@@ -19,53 +19,63 @@ namespace GXPEngine
         private float speedX;
         private float speedY;
 
-        private int width;
-        private int height;
+        private float oldX;
 
         private float gravity;
+        private float slideSpeed;
 
-        public Player(float x, float y, TiledObject obj = null) : base(true)
+
+        Sound jumpSound = new Sound("jump.mp3", false, false);
+
+        public Player(float x, float y) : base("square.png")
         {
-            /*this.x = obj.X;
-            this.y = obj.Y;*/
+            this.x = x;
+            this.y = y;
 
-            /*this.x = x;
-            this.y = y;*/
+            speedX = 0;
+            speedY = 0.5f;
 
-            this.speedX = 1;
-            this.speedY = 1;
+            gravity = 0.1f;
+            slideSpeed = 0.95f;
 
-            this.gravity = 0.25f;
-
-            SetScaleXY(0.25f);
+            SetOrigin(width / 2, height / 2);
+            alpha = 0;
 
             behaviourManager = new BehaviourManager();
 
-            this.width = behaviourManager.GetCurrent().GetSprite().width;
-            this.height = behaviourManager.GetCurrent().GetSprite().height;
+            width = behaviourManager.GetCurrent().GetSprite().width;
+            height = behaviourManager.GetCurrent().GetSprite().height;
 
             AddChild(behaviourManager.GetCurrent().GetSprite());
 
-            camera = new Camera(this.GetWidth(), this.GetHeight(), width, height);
-            this.AddChild(camera);
+            /*camera = new Camera((int)x - game.width / 3, (int)y - game.height / 3, game.width, game.height);
+            camera.SetScaleXY(0.25f);
+            AddChild(camera);*/
         }
 
         public int GetWidth()
         {
-            return this.width;
+            return width;
         }
 
         public int GetHeight()
         {
-            return this.height;
+            return height;
+        }
+
+        public Behaviour GetBehaviour()
+        {
+            return this.behaviourManager.GetCurrent();
         }
 
         public void Update()
         {
             ChangeForm();
-            //MoveY();
+            MoveY();
             MoveX();
             Print();
+
+            //behaviourManager.GetCurrent().GetSprite().rotation++;
         }
 
         private void ChangeForm()
@@ -84,46 +94,59 @@ namespace GXPEngine
 
         private void MoveX()
         {
-            if (Input.GetKey(Key.A))
+            float tempSpeed = 0;
+
+            oldX = x;
+
+            if (Input.GetKey(Key.A) && !Input.GetKey(Key.D))
             {
-                speedX -= 1f;
+                speedX = -1f;
             }
-            
-            else if (Input.GetKey(Key.D))
+            else if (Input.GetKey(Key.D) && !Input.GetKey(Key.A))
             {
-                speedX += 1f;
+                speedX = 1f;
             }
-            x += speedX * gravity;
-            speedX *= 0.9f;
+
+            if (MoveUntilCollision(speedX, 0) != null)
+            {
+                //Something later maybe
+            }
+
+            speedX *= slideSpeed;
+
+            if (Mathf.Abs(x - oldX) < (0.001f)) speedX = 0;
+
+            /// <Acceleration>
+            /// tempSpeed *= speed;
+            /// speed += 0.01f;
+            /// 
+            /// Might be needed to add speed = 0 somewhere down!
+            /// </Acceleration>
         }
 
         public void MoveY()
         {
-            speedY += gravity / 2;
-            y += speedY;
-            /*if (MoveUntilCollision(0, speedY) != null)
-            {
-                speedY = 0;
-            }*/
+            speedY += gravity * 0.4f;
 
-            if (y >= 600 - height * 4)
+            if (MoveUntilCollision(0, speedY) != null)
             {
-                y = 600 - height * 4;
                 speedY = 0;
             }
-
             if (Input.GetKeyDown(Key.W))
             {
-                speedY = -6;
+                speedY = -2;
+                //Jump();
             }
+        }
+        private void Jump()
+        {
+            jumpSound.Play();
         }
 
         void OnCollision(GameObject gameObject)
         {
-            if (gameObject is Level)
-            {
-                Console.WriteLine("HOOLYMOLLY");
-            }
+            
+            //Console.WriteLine(gameObject.name);
         }
 
         private void Print()
@@ -138,6 +161,8 @@ namespace GXPEngine
             {
                 pressedSpace = false;
             }
+
+            //Console.WriteLine("X = " + x + "; Y = " + y);
         }
     }
 }
