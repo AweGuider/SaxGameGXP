@@ -1,22 +1,18 @@
-﻿using GXPEngine.Core;
+﻿using GXPEngine;
+using GXPEngine.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TiledMapParser;
 
-namespace GXPEngine
+public class DeadZone : Sprite
 {
-    public class DeadZone : GameObject
-    {
-        private float width;
-        private float height;
 
-        public DeadZone(float x, float y, float width, float height) : base(true)
-        {
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-        }
+
+    public DeadZone(TiledObject obj = null) : base("checkers.png")
+    {
+        collider.isTrigger = true;
+        alpha = 0;
     }
 }

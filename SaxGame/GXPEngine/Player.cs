@@ -1,5 +1,6 @@
 ﻿using GXPEngine.Core;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,7 @@ namespace GXPEngine
        // Camera camera;
 
         private bool pressedX = false;
-        private bool pressedSpace = false;
+        private bool pressedQ = false;
 
         private float speedX;
         private float speedY;
@@ -24,6 +25,7 @@ namespace GXPEngine
         private float gravity;
         private float slideSpeed;
 
+        ArrayList blocks;
 
         Sound jumpSound = new Sound("jump.mp3", false, false);
 
@@ -127,11 +129,27 @@ namespace GXPEngine
         public void MoveY()
         {
             speedY += gravity * 0.4f;
-
-            if (MoveUntilCollision(0, speedY) != null)
+            if (speedY < 0)
             {
-                speedY = 0;
+                //foreach (Platform block in blocks)
+                //{
+                //    if (OnCollision(block))
+                //    {
+                //        y += speedY;
+                //    }
+                //}
+                y += speedY;
             }
+
+            else
+            {
+                if (MoveUntilCollision(0, speedY) != null)
+                {
+                    speedY = 0;
+                }
+            }
+                
+                
             if (Input.GetKeyDown(Key.W))
             {
                 speedY = -2;
@@ -145,21 +163,33 @@ namespace GXPEngine
 
         void OnCollision(GameObject gameObject)
         {
-            
+
             //Console.WriteLine(gameObject.name);
+        }
+
+        //bool OnCollision(Sprite sprite)
+        //{
+        //    Console.WriteLine(sprite.name);
+        //    return true;
+        //}
+
+        public void AddBlocksToCheck(ArrayList blocks)
+        {
+            this.blocks = blocks;
+            Console.WriteLine(this.blocks.Count);
         }
 
         private void Print()
         {
-            if (Input.GetKeyDown(Key.SPACE) && !pressedSpace)
+            if (Input.GetKeyDown(Key.Q) && !pressedQ)
             {
-                pressedSpace = true;
+                pressedQ = true;
                 Console.WriteLine("width = " + width + "; height = " + height);
                 Console.WriteLine("x = " + this.x + "; y = " + this.y);
             }
-            if (Input.GetKeyUp(Key.SPACE))
+            if (Input.GetKeyUp(Key.Q))
             {
-                pressedSpace = false;
+                pressedQ = false;
             }
 
             //Console.WriteLine("X = " + x + "; Y = " + y);

@@ -61,7 +61,7 @@ namespace GXPEngine
         int index;
         public BehaviourManager()
         {
-            this.behaviours = new ArrayList
+            behaviours = new ArrayList
             {
                 new Box("box"),
                 new Circle("circle"),

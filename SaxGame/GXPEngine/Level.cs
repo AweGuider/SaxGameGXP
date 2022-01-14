@@ -1,4 +1,5 @@
 ﻿using GXPEngine.Core;
+using GXPEngine.OpenGL;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,29 +9,31 @@ using TiledMapParser;
 
 namespace GXPEngine
 {
-    class Level : GameObject
+    public class Level : GameObject
     {
         TiledLoader tiledLoader;
 
-        private Player player;
+        protected Player player;
         private Vector2 playerCheckPoint;
 
         private ArrayList deadZones = new ArrayList();
+        private ArrayList blocks = new ArrayList();
 
         bool active;
-
-        bool mousePressed = false;
+        float newScroll;
 
         public Level(string filename) : base(true)
         {
             tiledLoader = new TiledLoader(filename);
             Create();
-            //Map levelInfo = MapParser.ReadMap(filename);
-
-            //CreateObjects(levelInfo);
-            //CreateLevel(levelInfo);
 
             scale = 2f;
+
+            /// <Alternative>
+            /// Map levelInfo = MapParser.ReadMap(filename);
+            /// CreateObjects(levelInfo);
+            /// CreateLevel(levelInfo);
+            /// </Alternative>
         }
 
         public bool GetActive()
@@ -48,6 +51,7 @@ namespace GXPEngine
             if (player != null) player.Update();
             Scroll();
             PlayerReset();
+
         }
 
         private void Scroll()
@@ -71,43 +75,25 @@ namespace GXPEngine
 
         private void MouseScroll()
         {
-            if (scale < 4.9f)
-            {
-                if (Input.GetMouseButtonDown(0) && !mousePressed)
-                {
-                    mousePressed = true;
-                    scale += 0.6f;
-                }
-            }
-            
-            if (scale > 0.3f)
-            {
-                if (Input.GetMouseButtonDown(1) && !mousePressed)
-                {
-                    mousePressed = true; ;
-                    scale -= 0.6f;
-                }
-            }
-
-            if (Input.GetMouseButtonUp(0) || Input.GetMouseButtonUp(1))
-            {
-                mousePressed = false;
-            }
+            newScroll = GL.glfwGetMouseWheel();
+            if (newScroll > 5) newScroll = 5;
+            if (newScroll < -3) newScroll = -3;
+            if (newScroll > -4 && newScroll < 6 && newScroll != 0) scale = 2 + 0.6f * newScroll;
+            if (newScroll == 0) scale = 2;
         }
 
-        private void PlayerReset()
+        public bool PlayerReset()
         {
-            // !!! NEED TO ASK HOW TO CREATE DEAD ZONES
             foreach (DeadZone dead in deadZones)
             {
                 if (player.HitTest(dead))
                 {
-                    Console.WriteLine("YAYA");
                     player.x = playerCheckPoint.x;
                     player.y = playerCheckPoint.y;
+                    return true;
                 }
             }
-            if (player.HitTest((GameObject)deadZones[0])) Console.WriteLine(deadZones.Count);
+            return false;
         }
 
         private void Create()
@@ -122,12 +108,19 @@ namespace GXPEngine
             tiledLoader.addColliders = true;
             tiledLoader.LoadTileLayers(1);
 
-            tiledLoader.addColliders = false;
+            tiledLoader.addColliders = true;
             tiledLoader.LoadTileLayers(2);
 
-            tiledLoader.AddManualType("Player", "DeadZone");
+            tiledLoader.AddManualType("Player");
             tiledLoader.OnObjectCreated += TiledLoader_OnObjectCreated;
-            tiledLoader.LoadObjectGroups(0, 1);
+            tiledLoader.LoadObjectGroups(0, 1, 2);
+
+            tiledLoader.addColliders = false;
+            tiledLoader.LoadTileLayers(3);
+
+            //CAN'T ADD PLATFORMS!
+            Console.WriteLine(blocks.Count);
+            player.AddBlocksToCheck(blocks);
         }
 
         private void TiledLoader_OnObjectCreated(Sprite sprite, TiledObject obj)
@@ -140,10 +133,16 @@ namespace GXPEngine
                 AddChild(player);
             }
 
-            else if (obj.Type == "DeadZone")
+            if (obj.Type == "DeadZone")
             {
-                deadZones.Add(new DeadZone(obj.X, obj.Y, obj.Width, obj.Height));
+                deadZones.Add(sprite as DeadZone);
             }
+
+            if (obj.Type == "Platform")
+            {
+                blocks.Add(new Platform(sprite.texture));
+            }
+
 
             Console.WriteLine(obj.Name);
         }
@@ -191,8 +190,50 @@ namespace GXPEngine
         /// </Useful>
     }
 
-    class LevelManager
+    public class LevelManager : GameObject
     {
+        Level active;
 
+        List<Level> levels;
+        List<string> levelPaths;
+        public LevelManager(List<string> levelPaths)
+        {
+            this.levelPaths = levelPaths;
+            levels = new List<Level>();
+            levels.Add(new Level(levelPaths[0]));
+            active = levels[0];
+            game.AddChild(active);
+            if (this.levelPaths.Count() > 0) levelPaths.RemoveAt(0);
+        }
+
+        public void Update()
+        {
+            if (active != null) active.Update();
+            if (Input.GetKeyUp(Key.TWO)) UploadLevel();
+        }
+
+        private void UploadLevel()
+        {
+            if (levelPaths.Count() < 1) return;
+            levels.Add(new Level(levelPaths[0]));
+            active = levels.Last();
+            game.AddChild(active);
+            levelPaths.RemoveAt(0);
+        }
+
+        private void LoadLevel(int n)
+        {
+            DestroyLevel();
+            active = levels[n - 1];
+        }
+
+        private void DestroyLevel()
+        {
+            List<GameObject> children = GetChildren();
+            for (int i = children.Count - 1; i > 0; i--)
+            {
+                children[i].Destroy();
+            }
+        }
     }
 }

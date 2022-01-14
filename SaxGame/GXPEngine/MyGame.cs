@@ -2,14 +2,11 @@ using System;									// System contains a lot of default C# libraries
 using GXPEngine;                                // GXPEngine contains the engine
 using System.Drawing;                           // System.Drawing contains drawing tools such as Color definitions
 using System.Collections.Generic;
+using GXPEngine.OpenGL;
 
 public class MyGame : Game
 {
-
-    Camera camera;
-
-    List<Level> levels = new List<Level>();
-
+    LevelManager levelManager;
 
     public MyGame() : base(480, 270, false, true, 960, 540, true)		// Create a window that's 800x600 and NOT fullscreen
 	{
@@ -26,41 +23,20 @@ public class MyGame : Game
 
         //AddChild(canvas);
 
-        LoadLevel("MapLevel1.tmx");
+        levelManager = new LevelManager(new List<string> { "MapLevel1.tmx", "MapLevel2.tmx" });
+        AddChild(levelManager);
 
         //Sound background = new Sound("Game_Music.wav", true, true);
         //background.Play();
 
-        
-
-        Console.WriteLine("MyGame initialized, x = " + this.x + "; y = " + this.y);
-
+        Console.WriteLine("MyGame initialized");
     }
 
 	// For every game object, Update is called every frame, by the engine:
 	void Update()
 	{
-        levels[0].Update();
+        levelManager.Update();
     }
-
-    private void LoadLevel(string name)
-    {
-        List<GameObject> children = GetChildren();
-        for (int i = children.Count - 1; i > 0 ; i--)
-        {
-            children[i].Destroy();
-        }
-
-        Level level = new Level(name);
-
-        if (levels != null && !levels.Contains(level)) levels.Add(level);
-
-        //scale = 3;
-
-        AddChild(level);
-    }
-
-    
 
 	static void Main()							// Main() is the first method that's called when the program is run
 	{
