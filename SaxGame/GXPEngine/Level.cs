@@ -63,13 +63,19 @@ namespace GXPEngine
 
         private void ScrollX()
         {
-            x = -player.x * scale + game.width/2;
+            x = -player.x * scale + game.width / 2;
+            if (x <= -2720) x = -2720;
+            if (x >= 0) x = 0;
 
         }
 
         private void ScrollY()
         {
+            Console.WriteLine("Player Y: " + player.y + "; Level Y: " + y + ";");
+
             y = -player.y * scale + game.height / 2;
+            if (y <= -370) y = -370;
+            if (y >= 0) y = 0;
         }
 
         private void MouseScroll()
@@ -107,7 +113,6 @@ namespace GXPEngine
             tiledLoader.addColliders = true;
             tiledLoader.LoadTileLayers(1);
 
-            Console.WriteLine(tiledLoader.map.GetTileSet(tiledLoader.map.Layers[2].GetTileArray()[0, 0]));
             LoadSpecialBlocks();
 
             tiledLoader.AddManualType("Player");
@@ -117,8 +122,6 @@ namespace GXPEngine
             tiledLoader.addColliders = false;
             tiledLoader.LoadTileLayers(3);
 
-            //CAN'T ADD PLATFORMS!
-            Console.WriteLine(blocks.Count);
             player.AddBlocksToCheck(blocks);
         }
 
@@ -171,6 +174,13 @@ namespace GXPEngine
                                 breakSide.SetFrame(tileNumber - tile.FirstGId);
                                 blocks.Add(breakSide);
                                 AddChild(breakSide);
+                                break;
+                            case 1179: case 1180: case 1212: case 1213: case 1311: case 1312: case 1412:
+                                BreakDown breakDown = new BreakDown(tile.Image.FileName, tile.Columns, tile.Rows);
+                                breakDown.SetXY(col * tile.TileWidth, row * tile.TileHeight);
+                                breakDown.SetFrame(tileNumber - tile.FirstGId);
+                                blocks.Add(breakDown);
+                                AddChild(breakDown);
                                 break;
                             default:
                                 break;

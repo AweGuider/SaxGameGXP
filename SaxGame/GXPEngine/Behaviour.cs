@@ -8,18 +8,58 @@ namespace GXPEngine
 {
     public class Behaviour
     {
-        protected Sprite sprite;
-        protected string name;
+        private Sprite sprite;
+        private string name;
 
+        private float speed;
         private int jumpAmount;
         private float jumpHeight;
-        private float speed;
 
-        public Behaviour(string name, string imagePath)
+        private bool breakDown;
+        private bool breakSide;
+        private bool fly;
+
+        public Behaviour(string name, string imagePath, float speed, int jumps, float height, bool breakDown = false, bool breakSide = false, bool fly = false)
         {
             this.name = name;
+            this.speed = speed;
+            jumpAmount = jumps;
+            jumpHeight = height;
+            this.breakDown = breakDown;
+            this.breakSide = breakSide;
+            this.fly = fly;
+
             sprite = new Sprite(imagePath, false, false);
             sprite.SetOrigin(sprite.width / 2, sprite.height / 2);
+        }
+
+        public float GetSpeed()
+        {
+            return speed;
+        }
+
+        public int GetJumpAmount()
+        {
+            return jumpAmount;
+        }
+
+        public float GetJumpHeight()
+        {
+            return jumpHeight;
+        }
+        public bool GetBreakDownPower()
+        {
+            return breakDown;
+        }
+
+        public bool GetBreakSidePower()
+        {
+            return breakSide;
+        }
+
+        public bool GetFlyPower()
+        {
+            return fly;
         }
 
         public Sprite GetSprite()
@@ -32,49 +72,29 @@ namespace GXPEngine
             return name.ToString();
         }
 
-        public void SetSpeed(float speed)
-        {
-            this.speed = (speed == 0) ? 1 : speed;
-        }
-
-        public void SetJumpAmount(int jumps)
-        {
-            jumpAmount = (jumps == 0) ? 1 : jumps;
-        }
-
-        public void SetJumpHeight(float height)
-        {
-            jumpHeight = (height == 0) ? 1 : height;
-        }
     }
     
     class Triangle : Behaviour
     {
-        public Triangle(string name) : base(name, "triangle.png")
+        public Triangle(string name, string path, float speed, int jumps, float jumpHeight) : base(name, path, speed, jumps, jumpHeight, false, true)
         {
-            SetJumpAmount(0);
-            SetSpeed(1.5f);
-            SetJumpHeight(0);
+
         }
     }
 
     class Circle : Behaviour
     {
-        public Circle(string name) : base(name, "circle.png")
+        public Circle(string name, string path, float speed, int jumps, float jumpHeight) : base(name, path, speed, jumps, jumpHeight, false, false, true)
         {
-            SetJumpAmount(0);
-            SetSpeed(0);
-            SetJumpHeight(1.5f);
+
         }
     }
 
     class Box : Behaviour
     {
-        public Box(string name) : base(name, "square.png")
+        public Box(string name, string path, float speed, int jumps, float jumpHeight) : base(name, path, speed, jumps, jumpHeight, true)
         {
-            SetJumpAmount(2);
-            SetSpeed(0.5f);
-            SetJumpHeight(0);
+
         }
     }
 
@@ -84,32 +104,45 @@ namespace GXPEngine
 
         Behaviour current;
 
-        int index;
-        public BehaviourManager()
+        private int index;
+        public BehaviourManager(Player player)
         {
             behaviours = new ArrayList
             {
-                new Box("box"),
-                new Circle("circle"),
-                new Triangle("triangle")
+                new Box("box", "square.png", 0.25f, 2, 0.75f),
+                new Circle("circle", "circle.png", 0.5f, 1, 1.25f),
+                new Triangle("triangle", "triangle.png", 0.75f, 1, 1)
             };
             index = 0;
-            current = GetCurrent();
+            current = GetCurrentBehaviour();
+
+            player.width = current.GetSprite().width;
+            player.height = current.GetSprite().height;
+            player.AddChild(current.GetSprite());
+            player.SetParameters(current.GetSpeed(), current.GetJumpAmount(), current.GetJumpHeight());
         }
 
-        public Behaviour GetCurrent()
+        public Behaviour GetCurrentBehaviour()
         {
             current = (Behaviour)behaviours[index];
             return current;
         }
 
 
-        public Behaviour GetNext()
+        private Behaviour GetNextBehaviour()
         {
             index++;
             if (index >= behaviours.Count) index = 0;
             Console.WriteLine(behaviours[index].ToString());
-            return (Behaviour)behaviours[index];
+            return GetCurrentBehaviour();
+        }
+
+        public void ChangeForm(Player player)
+        {
+            player.RemoveChild(current.GetSprite());
+            player.AddChild(GetNextBehaviour().GetSprite());
+            player.SetParameters(current.GetSpeed(), current.GetJumpAmount(), current.GetJumpHeight());
+            player.SetPowers(current.GetBreakDownPower(), current.GetBreakSidePower(), current.GetFlyPower());
         }
     }
 }
