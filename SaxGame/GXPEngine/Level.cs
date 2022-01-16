@@ -70,7 +70,6 @@ namespace GXPEngine
         private void ScrollY()
         {
             y = -player.y * scale + game.height / 2;
-
         }
 
         private void MouseScroll()
@@ -108,12 +107,12 @@ namespace GXPEngine
             tiledLoader.addColliders = true;
             tiledLoader.LoadTileLayers(1);
 
-            tiledLoader.addColliders = true;
-            tiledLoader.LoadTileLayers(2);
+            Console.WriteLine(tiledLoader.map.GetTileSet(tiledLoader.map.Layers[2].GetTileArray()[0, 0]));
+            LoadSpecialBlocks();
 
             tiledLoader.AddManualType("Player");
             tiledLoader.OnObjectCreated += TiledLoader_OnObjectCreated;
-            tiledLoader.LoadObjectGroups(0, 1, 2);
+            tiledLoader.LoadObjectGroups(1, 2);
 
             tiledLoader.addColliders = false;
             tiledLoader.LoadTileLayers(3);
@@ -138,13 +137,48 @@ namespace GXPEngine
                 deadZones.Add(sprite as DeadZone);
             }
 
-            if (obj.Type == "Platform")
-            {
-                blocks.Add(new Platform(sprite.texture));
-            }
-
-
             Console.WriteLine(obj.Name);
+        }
+
+        private void LoadSpecialBlocks()
+        {
+            short[,] tileNumbers = tiledLoader.map.Layers[2].GetTileArray();
+            for (int row = 0; row < tiledLoader.map.Layers[2].Height; row++)
+            {
+                for (int col = 0; col < tiledLoader.map.Layers[2].Width; col++)
+                {
+                    int tileNumber = tileNumbers[col, row];
+                    if (tileNumber > 0)
+                    {
+                        TileSet tile = tiledLoader.map.GetTileSet(tileNumber);
+
+                        //Console.WriteLine(tileNumber);
+                        //Console.WriteLine(tile.Image.FileName);
+
+                        switch (tileNumber)
+                        {
+                            case 1061: case 1062:
+                                Platform platform = new Platform(tile.Image.FileName, tile.Columns, tile.Rows);
+                                platform.SetXY(col * tile.TileWidth, row * tile.TileHeight);
+                                platform.SetFrame(tileNumber - tile.FirstGId);
+                                blocks.Add(platform);
+                                AddChild(platform);
+                                break;
+                            case 1171: case 1172: case 1204: case 1205: case 1303: case 1304: case 1404:
+                                BreakSide breakSide = new BreakSide(tile.Image.FileName, tile.Columns, tile.Rows);
+                                //breakSide.SetOrigin(tile.TileWidth / 2, tile.TileHeight / 2);
+                                breakSide.SetXY(col * tile.TileWidth, row * tile.TileHeight);
+                                breakSide.SetFrame(tileNumber - tile.FirstGId);
+                                blocks.Add(breakSide);
+                                AddChild(breakSide);
+                                break;
+                            default:
+                                break;
+
+                        }
+                    }
+                }
+            }
         }
 
         /// <Useful stuff for next time>
@@ -152,7 +186,7 @@ namespace GXPEngine
         /// {
         ///     if (levelInfo.Layers != null || levelInfo.Layers.Length == 0) return;
         ///     Layer main = levelInfo.Layers[0];
-        ///     short[,] tileNumbers = main.GetTileArray
+        ///     short[,] tileNumbers = main.GetTileArray();
         ///     for (int row = 0; row < main.Height; row++)
         ///     {
         ///         for (int col = 0; col < main.Width; col++)
@@ -202,8 +236,9 @@ namespace GXPEngine
             levels = new List<Level>();
             levels.Add(new Level(levelPaths[0]));
             active = levels[0];
-            game.AddChild(active);
+            AddChild(active);
             if (this.levelPaths.Count() > 0) levelPaths.RemoveAt(0);
+            Console.WriteLine(levels.Count);
         }
 
         public void Update()
@@ -216,8 +251,9 @@ namespace GXPEngine
         {
             if (levelPaths.Count() < 1) return;
             levels.Add(new Level(levelPaths[0]));
+            DestroyLevel();
             active = levels.Last();
-            game.AddChild(active);
+            AddChild(active);
             levelPaths.RemoveAt(0);
         }
 
@@ -232,7 +268,7 @@ namespace GXPEngine
             List<GameObject> children = GetChildren();
             for (int i = children.Count - 1; i > 0; i--)
             {
-                children[i].Destroy();
+                children[i].LateDestroy();
             }
         }
     }

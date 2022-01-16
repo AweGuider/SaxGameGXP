@@ -6,18 +6,27 @@ using System.Linq;
 using System.Text;
 using TiledMapParser;
 
-public class Block : Sprite
+public class Block : AnimationSprite
 {
-    public Block(Texture2D texture, TiledObject obj = null) : base(texture)
+    public Block(string path, int col, int row, TiledObject obj = null) : base(path, col, row)
     {
-            
+        //collider.isTrigger = true;
+
     }
 }
 
 public class Platform : Block
 {
-    public Platform(Texture2D texture, TiledObject obj = null) : base(texture)
+    public Platform(string path, int col, int row, TiledObject obj = null) : base(path, col, row)
     {
-        //collider.isTrigger = true;
+        collider.isTrigger = true;
+    }
+}
+
+public class BreakSide : Block
+{
+    public BreakSide(string path, int col, int row, TiledObject obj = null) : base(path, col, row)
+    {
+        collider.isTrigger = false;
     }
 }
